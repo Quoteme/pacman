@@ -112,9 +112,9 @@ instance Show Level where -- TODO
 instance Drawable Entity where
   draw (Pacman (Position x y) dir time) = translate (avgSize * x) (avgSize * y) $ Color yellow $ arcSolid startangle endangle (avgSize / 2)
     where
-      startangle = fromIntegral (fromEnum dir) + mouthSize / 2
-      endangle = fromIntegral (fromEnum dir) - mouthSize / 2
-      mouthSize = 90 * cos (2 * time)
+      startangle = 90*fromIntegral (fromEnum dir) + mouthSize / 2
+      endangle = 90*fromIntegral (fromEnum dir) +360 - mouthSize / 2
+      mouthSize = 90 * abs (cos (2 * time))
   draw (Ghost (Position x y) dir time) = translate (avgSize * x) (avgSize * y) $ Color azure $ circleSolid (avgSize / 2)
 
 instance Drawable Tile where
@@ -184,6 +184,13 @@ addTiles = foldl addTile
 
 applyToEntities :: Level -> (Entity -> Entity) -> Level
 applyToEntities (Level n s t e) f = Level n s t (map f e)
+
+applyToPacman :: Level -> (Entity -> Entity) -> Level
+applyToPacman lvl f = applyToEntities lvl (filterPacman f)
+  where
+    filterPacman :: (Entity -> Entity) -> Entity -> Entity
+    filterPacman f (Pacman p d t) = f (Pacman p d t)
+    filterPacman _ x = x
 
 addBorder :: Level -> Level
 addBorder l = addTiles l [Wall (Position (fromIntegral x) (fromIntegral y)) | x <- [0 .. sx], y <- [0 .. sy], x == 0 || x == sx || y == 0 || y == sy]
