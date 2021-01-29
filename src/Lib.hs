@@ -110,17 +110,26 @@ instance Show Level where -- TODO
         | otherwise = show (Empty (Position 0 0))
 
 instance Drawable Entity where
-  draw (Pacman (Position x y) dir time) = translate (avgSize * x) (avgSize * y) $ Color yellow $ arcSolid startangle endangle (avgSize / 2)
+  draw (Pacman (Position x y) dir time) =
+    translate (avgSize * x) (avgSize * y)
+    $ Rotate mouthDirection $ Color yellow
+    $ arcSolid (mouthSize/2) (-mouthSize/2) (avgSize / 2)
     where
-      startangle = 90*fromIntegral (fromEnum dir) + mouthSize / 2
-      endangle = 90*fromIntegral (fromEnum dir) +360 - mouthSize / 2
-      mouthSize = 90 * abs (cos (2 * time))
-  draw (Ghost (Position x y) dir time) = translate (avgSize * x) (avgSize * y) $ Color azure $ circleSolid (avgSize / 2)
+      mouthSize      = 90 * abs (cos (2 * time))
+      mouthDirection = -90*fromIntegral(fromEnum dir)
+  draw (Ghost (Position x y) dir time) =
+    translate (avgSize * x) (avgSize * y)
+    $ Color azure $ circleSolid (avgSize / 2)
 
 instance Drawable Tile where
   draw (Empty _) = Blank
-  draw (Wall (Position x y)) = translate (avgSize * x) (avgSize * y) $ Color (greyN 0.6) $ scale avgSize avgSize $ Polygon [(-0.5, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.5, 0.5)]
-  draw (Pallet (Position x y)) = translate (avgSize * x) (avgSize * y) $ Color (dark (dark yellow)) $ circleSolid (avgSize / 2 / 4)
+  draw (Wall (Position x y)) =
+    translate (avgSize * x) (avgSize * y)
+    $ Color (greyN 0.6) $ scale avgSize avgSize
+    $ Polygon [(-0.5, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.5, 0.5)]
+  draw (Pallet (Position x y)) =
+    translate (avgSize * x) (avgSize * y)
+    $ Color (dark (dark yellow)) $ circleSolid (avgSize / 2 / 4)
 
 instance Drawable Level where
   draw (Level name (sx, sy) tiles entities) = Pictures (map draw tiles) <> Pictures (map draw entities)

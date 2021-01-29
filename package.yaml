@@ -25,6 +25,7 @@ dependencies:
 - bytestring
 - gloss
 - aeson
+- containers
 
 library:
   source-dirs: src
